@@ -25,7 +25,43 @@ class Button(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        outPutButton = QPushButton("出力", self)
+
+        # Labelオブジェクト
+        driverIdLabel = QLabel('DRIVER ID')
+        carIdLabel = QLabel('CAR ID')
+        tripTimeLabel = QLabel('TRIP TIME')
+        temperatureLabel = QLabel('TEMPERATURE')
+        humidityLabel = QLabel('HUMIDITY')
+        precipitationLabel = QLabel('PRECIPITATION')
+        sunlightLabel = QLabel('SUN LIGHT')
+        windLabel = QLabel('WIND')
+        windSpeedLabel = QLabel('WIND SPEED')
+        dwindDrectionLabel = QLabel('WIND DIRECTION')
+        maxLabel = QLabel('MAX')
+        minLabel = QLabel('MIN')
+
+        # LineEditオブジェクト
+        driverIdQle = QLineEdit()
+        carIdQle = QLineEdit()
+        tripTimeQle = QLineEdit()
+        temperatureQle = QLineEdit()
+        humidityQle = QLineEdit()
+        precipitationQle = QLineEdit()
+        sunlightQle = QLineEdit()
+        windQle = QLineEdit()
+        windSpeedQle = QLineEdit()
+        windDirectionQle = QLineEdit()
+        maxQle = QLineEdit()
+        minQle = QLineEdit()
+
+        # TRIP条件を指定するWidgetグループ
+        self.tripGroupBox = QGroupBox("TRIP")
+
+        # WEATHER条件を指定するグループ
+        self.weatherGroupBox = QGroupBox("WEATHER")
+
+        # Outputボタン
+        outPutButton = QPushButton("Output", self)
         outPutButton.clicked.connect(self.outPutButtonClicked)
 
         self.statusBar()
@@ -34,10 +70,12 @@ class Button(QMainWindow):
         self.setWindowIcon(QIcon('rusi.png'))
         self.show()
 
-    #出力ボタンが押された時の処理
+    # 出力ボタンが押された時の処理
     def outPutButtonClicked(self):
         sender = self.sender()
         self.statusBar().showMessage(sender.text() + ' has been pushed.')
+
+        ## 入力されている値を取得
 
         ##クエリ生成
         sampleQuery = "SELECT TRIP_ID, DATETIME, AC_PWR_250W FROM LEAFSPY_RAW2 WHERE DATETIME >= '2017-10-30' ORDER BY DATETIME"
