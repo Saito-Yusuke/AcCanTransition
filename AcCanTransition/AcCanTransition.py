@@ -56,14 +56,17 @@ class InputWindow(QWidget):
         ## PRECIPITATION
         precipitationLabel = QLabel('PRECIPITATION')
 
-        ## SUN LIGHT
-        sunlightLabel = QLabel('SUN LIGHT')
-        
-
         ##WIND
         windLabel = QLabel('WIND')
-        windSpeedLabel = QLabel('WIND SPEED')
+        windSpeedLabel = QLabel('WIND SPEED [m/s]')
+        windSpeedMaxLabel = QLabel('最大')
+        windSpeedMinLabel = QLabel('最小')
         dwindDrectionLabel = QLabel('WIND DIRECTION')
+
+        ## SUN LIGHT
+        sunLightLabel = QLabel('SUN LIGHT [min]')
+        sunLightMaxLabel = QLabel('最大')
+        sunLightMinLabel = QLabel('最小')
 
 
         # LineEditオブジェクト
@@ -96,21 +99,33 @@ class InputWindow(QWidget):
 
         ## TRIP TIME
         self.tripTimeMaxComboBox = QComboBox(self)
-        self.tripTimeMaxComboBox.addItems(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150"])
+        self.tripTimeMaxComboBox.addItems(["150", "140", "130", "120", "110", "100", "90", "80", "70", "60", "50", "40", "30", "20", "10"])
         self.tripTimeMinComboBox = QComboBox(self)
-        self.tripTimeMinComboBox.addItems(["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140"])
+        self.tripTimeMinComboBox.addItems(["140", "130", "120", "110", "100", "90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
 
         ## TEMPERATURE
         self.temperatureMaxComboBox = QComboBox(self)
-        self.temperatureMaxComboBox.addItems(["-20", "-15", "-10", "-5", "0", "5", "10", "15", "20", "25", "30", "35", "40", "45"])
+        self.temperatureMaxComboBox.addItems(["45", "40", "35", "30", "25", "20", "15", "10", "5", "0", "-5", "-10", "-15", "-20"])
         self.temperatureMinComboBox = QComboBox(self)
-        self.temperatureMinComboBox.addItems(["-25", "-20", "-15", "-10", "-5", "0", "5", "10", "15", "20", "25", "30", "35", "40"])
+        self.temperatureMinComboBox.addItems(["40", "35", "30", "25", "20", "15", "10", "5", "0", "-5", "-10", "-15", "-20", "-25"])
 
         ## HUMIDITY
         self.humidityMaxComboBox = QComboBox(self)
-        self.humidityMaxComboBox.addItems(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
+        self.humidityMaxComboBox.addItems(["100", "90", "80", "70", "60", "50", "40", "30", "20", "10"])
         self.humidityMinComboBox = QComboBox(self)
-        self.humidityMinComboBox.addItems(["0", "10", "20", "30", "40", "50", "60", "70", "80", "90"])
+        self.humidityMinComboBox.addItems(["90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
+
+        ##WIND SPEED
+        self.windSpeedMaxComboBox = QComboBox(self)
+        self.windSpeedMaxComboBox.addItems(["20", "18", "16", "14", "12", "10", "8", "6", "4", "2", "0"])
+        self.windSpeedMinComboBox = QComboBox(self)
+        self.windSpeedMinComboBox.addItems(["18", "16", "14", "12", "10", "8", "6", "4", "2", "0"])
+
+        ## SUN LUGHT
+        self.sunLightMaxComboBox = QComboBox(self)
+        self.sunLightMaxComboBox.addItems(["150", "140", "130", "120", "110", "100", "90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
+        self.sunLightMinComboBox = QComboBox(self)
+        self.sunLightMinComboBox.addItems(["140", "130", "120", "110", "100", "90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
 
         # RadioButtonオブジェクト
         ## PRECIPITATION
@@ -213,12 +228,39 @@ class InputWindow(QWidget):
         precipitationLayout.addWidget(precipitationLabel)
         precipitationLayout.addLayout(precipitationRadioButtonLayout)
 
-        ## SUN LIGHT
+        ## WIND SPEED
+        windSpeedMaxLayout = QHBoxLayout()
+        windSpeedMaxLayout.addWidget(windSpeedMaxLabel)
+        windSpeedMaxLayout.addWidget(self.windSpeedMaxComboBox)
 
+        windSpeedMinLayout = QHBoxLayout()
+        windSpeedMinLayout.addWidget(windSpeedMinLabel)
+        windSpeedMinLayout.addWidget(self.windSpeedMinComboBox)
+
+        windSpeedLayout = QVBoxLayout()
+        windSpeedLayout.addWidget(windSpeedLabel)
+        windSpeedLayout.addLayout(windSpeedMaxLayout)
+        windSpeedLayout.addLayout(windSpeedMinLayout)
+
+        ## SUN LIGHT
+        sunLightMaxLayout = QHBoxLayout()
+        sunLightMaxLayout.addWidget(sunLightMaxLabel)
+        sunLightMaxLayout.addWidget(self.sunLightMaxComboBox)
+
+        sunLightMinLayout = QHBoxLayout()
+        sunLightMinLayout.addWidget(sunLightMinLabel)
+        sunLightMinLayout.addWidget(self.sunLightMinComboBox)
+
+        sunLightLayout = QVBoxLayout()
+        sunLightLayout.addWidget(sunLightLabel)
+        sunLightLayout.addLayout(sunLightMaxLayout)
+        sunLightLayout.addLayout(sunLightMinLayout)
 
         ## まとめ
         weatherBox1.addLayout(temperatureLayout)
         weatherBox1.addLayout(humidityLayout)
+        weatherBox1.addLayout(windSpeedLayout)
+        weatherBox1.addLayout(sunLightLayout)
         weatherBox.addLayout(weatherBox1)
         weatherBox.addLayout(precipitationLayout)
 
@@ -227,11 +269,12 @@ class InputWindow(QWidget):
 
         # Outputボタン
         outPutButton = QPushButton("Output", self)
+        outPutButton.resize(outPutButton.sizeHint())
         outPutButton.clicked.connect(self.outPutButtonClicked)
         grid.addWidget(outPutButton)
 
+
         self.setLayout(grid)
-        #self.resize(500, 500)
         self.setWindowTitle('AC CAN Transition')
         self.setWindowIcon(QIcon('rusi.png'))
         self.show()
