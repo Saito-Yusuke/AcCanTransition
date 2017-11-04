@@ -136,6 +136,7 @@ class InputWindow(QWidget):
         self.precipitationViolentRadioButton = QRadioButton("激しい雨")
         self.precipitationVeryViolentRadioButton = QRadioButton("非常に激しい雨")
         self.precipitationImpetuousRadioButton = QRadioButton("猛烈な雨")
+        self.precipitationNonRadioButton.setChecked(True)
 
 
         # TRIP条件を指定するWidgetグループ
@@ -283,14 +284,104 @@ class InputWindow(QWidget):
     def outPutButtonClicked(self):
         sender = self.sender()
 
-        ## 入力されている値を取得
+        ## 入力されている値を取得・コンソールに出力
+        print("CONDITION")
+
+        ### DRIVER ID
+        if self.driverIdComboBox.currentIndex() == 0:
+            driverId = 1
+        elif self.driverIdComboBox.currentIndex() == 1:
+            driverId = 4
+        elif self.driverIdComboBox.currentIndex() == 2:
+            driverId = 16
+        else:
+            print("無効なDRIVER ID")
+        print("DRIVER ID : " + str(driverId))
+        
+        ### CAR ID
+        if self.carIdComboBox.currentIndex() == 0:
+            carId = 3
+        elif self.carIdComboBox.currentIndex() == 1:
+            carId = 8
+        else:
+            print("無効なCAR ID")
+        print("CAR ID : " + str(carId))
+
+        ### TRIP DIRECTION
+        if self.tripDirectionComboBox.currentIndex() == 0:
+            tripDirection = "outward"
+        elif self.tripDirectionComboBox.currentIndex() == 1:
+            tripDirection = "homeward"
+        elif self.tripDirectionComboBox.currentIndex() == 2:
+            tripDirection = "other"
+        else:
+            print("無効なTRIP DIRECTION")
+        print("TRIP DIRECTION : " + tripDirection)
+
+        ### TRIP TIME
+        tripTimeMax = int(self.tripTimeMaxComboBox.currentText())
+        tripTimeMin = int(self.tripTimeMinComboBox.currentText())
+        print("TRIP TIME : " + str(tripTimeMin) +"min ～ " + str(tripTimeMax) + "min")
+
+        ### TEMPERATURE
+        temperatureMax = int(self.temperatureMaxComboBox.currentText())
+        temperatureMin = int(self.temperatureMinComboBox.currentText())
+        print("TEMPERATURE : " + str(temperatureMin) +"℃ ～ " + str(temperatureMax) + "℃")
+
+        ### HUMIDITY
+        humidityMax = int(self.humidityMaxComboBox.currentText())
+        humidityMin = int(self.humidityMinComboBox.currentText())
+        print("HUMIDITY : " + str(humidityMin) +"% ～ " + str(humidityMax) + "%")
+
+        ### PRECIPITATION
+        if self.precipitationNonRadioButton.isChecked():
+            precipitationMax = 0
+            precipitationMin = 0
+            print("PRECIPITATION : 降水なし (" + str(precipitationMin) + "mm)")
+        elif self.precipitationWeakRadioButton.isChecked():
+            precipitationMax = 10
+            precipitationMin = 0
+            print("PRECIPITATION : 弱い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        elif self.precipitationSlightlyStrongRadioButton.isChecked():
+            precipitationMax = 20
+            precipitationMin = 10
+            print("PRECIPITATION : やや強い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        elif self.precipitationStrongRadioButton.isChecked():
+            precipitationMax = 30
+            precipitationMin = 20
+            print("PRECIPITATION : 強い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        elif self.precipitationViolentRadioButton.isChecked():
+            precipitationMax = 50
+            precipitationMin = 30
+            print("PRECIPITATION : 激しい雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        elif self.precipitationVeryViolentRadioButton.isChecked():
+            precipitationMax = 80
+            precipitationMin = 50
+            print("PRECIPITATION : 非常に激しい雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        elif self.precipitationImpetuousRadioButton.isChecked():
+            precipitationMax = 1000
+            precipitationMin = 80
+            print("PRECIPITATION : 猛烈な雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+        else:
+            print("無効なPRECIPITATION")
+
+        ### WIND SPEED
+        windSpeedMax = int(self.windSpeedMaxComboBox.currentText())
+        windSpeedMin = int(self.windSpeedMinComboBox.currentText())
+        print("WIND SPEED : " + str(windSpeedMin) +"m/s ～ " + str(windSpeedMax) + "m/s")
+
+        ### SUN LIGHT
+        sunLightMax = int(self.sunLightMaxComboBox.currentText())
+        sunLightMin = int(self.sunLightMinComboBox.currentText())
+        print("SUN LIGHT : " + str(sunLightMin) +"min ～ " + str(sunLightMax) + "min")
+
 
         ##クエリ生成
-        sampleQuery = "SELECT TRIP_ID, DATETIME, AC_PWR_250W FROM LEAFSPY_RAW2 WHERE DATETIME >= '2017-10-30' ORDER BY DATETIME"
+        getTripQuery = "SELECT TRIP_ID, DATETIME, AC_PWR_250W FROM LEAFSPY_RAW2 WHERE DATETIME >= '2017-10-30' ORDER BY DATETIME"
 
         ## DBにアクセスして実行
         cur = dbConnection().cursor()
-        cur.execute(sampleQuery)
+        cur.execute(getTripQuery)
         
         rows = cur.fetchall()
         
