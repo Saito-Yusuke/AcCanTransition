@@ -26,12 +26,17 @@ class InputWindow(QWidget):
 
     def initUI(self):
 
+        grid = QVBoxLayout()
+
         # Labelオブジェクト
         ## DRIVER ID
         driverIdLabel = QLabel('DRIVER ID')
 
         ##CAR ID
         carIdLabel = QLabel('CAR ID')
+
+        ## TRIP DIRECTION
+        tripDirectionLabel = QLabel('TRIP DIRECTION')
 
         ## TRIP TIME
         tripTimeLabel = QLabel('TRIP TIME [min]')
@@ -49,10 +54,11 @@ class InputWindow(QWidget):
         humidityMinLabel = QLabel('最小')
 
         ## PRECIPITATION
-        precipitationLabel = QLabel('PRECIPITATION [mm]')
+        precipitationLabel = QLabel('PRECIPITATION')
 
         ## SUN LIGHT
         sunlightLabel = QLabel('SUN LIGHT')
+        
 
         ##WIND
         windLabel = QLabel('WIND')
@@ -61,10 +67,6 @@ class InputWindow(QWidget):
 
 
         # LineEditオブジェクト
-        driverIdQle = QLineEdit()
-        carIdQle = QLineEdit()
-        tripTimeMaxQle = QLineEdit()
-        tripTimeMinQle = QLineEdit()
         temperatureQle = QLineEdit()
         humidityQle = QLineEdit()
         precipitationQle = QLineEdit()
@@ -72,10 +74,6 @@ class InputWindow(QWidget):
         windQle = QLineEdit()
         windSpeedQle = QLineEdit()
         windDirectionQle = QLineEdit()
-
-
-        # BOXレイアウトオブジェクト
-        grid = QVBoxLayout()
 
 
         # ComboBoxオブジェクト
@@ -90,11 +88,39 @@ class InputWindow(QWidget):
         self.carIdComboBox.addItem("3（LEAF）")
         self.carIdComboBox.addItem("8（LEAF_XXXXXX）")
 
+        ## TRIP DIRECTION
+        self.tripDirectionComboBox = QComboBox(self)
+        self.tripDirectionComboBox.addItem("outward")
+        self.tripDirectionComboBox.addItem("homeward")
+        self.tripDirectionComboBox.addItem("other")
+
         ## TRIP TIME
         self.tripTimeMaxComboBox = QComboBox(self)
         self.tripTimeMaxComboBox.addItems(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150"])
         self.tripTimeMinComboBox = QComboBox(self)
         self.tripTimeMinComboBox.addItems(["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140"])
+
+        ## TEMPERATURE
+        self.temperatureMaxComboBox = QComboBox(self)
+        self.temperatureMaxComboBox.addItems(["-20", "-15", "-10", "-5", "0", "5", "10", "15", "20", "25", "30", "35", "40", "45"])
+        self.temperatureMinComboBox = QComboBox(self)
+        self.temperatureMinComboBox.addItems(["-25", "-20", "-15", "-10", "-5", "0", "5", "10", "15", "20", "25", "30", "35", "40"])
+
+        ## HUMIDITY
+        self.humidityMaxComboBox = QComboBox(self)
+        self.humidityMaxComboBox.addItems(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
+        self.humidityMinComboBox = QComboBox(self)
+        self.humidityMinComboBox.addItems(["0", "10", "20", "30", "40", "50", "60", "70", "80", "90"])
+
+        # RadioButtonオブジェクト
+        ## PRECIPITATION
+        self.precipitationNonRadioButton = QRadioButton("降水なし")
+        self.precipitationWeakRadioButton = QRadioButton("弱い雨")
+        self.precipitationSlightlyStrongRadioButton = QRadioButton("やや強い雨")
+        self.precipitationStrongRadioButton = QRadioButton("強い雨")
+        self.precipitationViolentRadioButton = QRadioButton("激しい雨")
+        self.precipitationVeryViolentRadioButton = QRadioButton("非常に激しい雨")
+        self.precipitationImpetuousRadioButton = QRadioButton("猛烈な雨")
 
 
         # TRIP条件を指定するWidgetグループ
@@ -110,6 +136,11 @@ class InputWindow(QWidget):
         carIdLayout = QVBoxLayout()
         carIdLayout.addWidget(carIdLabel)
         carIdLayout.addWidget(self.carIdComboBox)
+
+        ## TRIP DIRECTION
+        tripDirectionLayout = QVBoxLayout()
+        tripDirectionLayout.addWidget(tripDirectionLabel)
+        tripDirectionLayout.addWidget(self.tripDirectionComboBox)
 
         ## TRIP TIME
         tripTimeMaxLayout = QHBoxLayout()
@@ -128,6 +159,7 @@ class InputWindow(QWidget):
         ## まとめ
         tripBox.addLayout(driverIdLayout)
         tripBox.addLayout(carIdLayout)
+        tripBox.addLayout(tripDirectionLayout)
         tripBox.addLayout(tripTimeLayout)
 
         self.tripGroupBox.setLayout(tripBox)
@@ -137,17 +169,58 @@ class InputWindow(QWidget):
         # WEATHER条件を指定するグループ
         self.weatherGroupBox = QGroupBox("WEATHER")
         weatherBox = QVBoxLayout()
+        weatherBox1 = QHBoxLayout()
 
-        temperatureLayout = QHBoxLayout()
+        ## TEMPERATURE
+        temperatureMaxLayout = QHBoxLayout()
+        temperatureMaxLayout.addWidget(temperatureMaxLabel)
+        temperatureMaxLayout.addWidget(self.temperatureMaxComboBox)
+
+        temperatureMinLayout = QHBoxLayout()
+        temperatureMinLayout.addWidget(temperatureMinLabel)
+        temperatureMinLayout.addWidget(self.temperatureMinComboBox)
+
+        temperatureLayout = QVBoxLayout()
         temperatureLayout.addWidget(temperatureLabel)
-        temperatureLayout.addWidget(temperatureQle)
+        temperatureLayout.addLayout(temperatureMaxLayout)
+        temperatureLayout.addLayout(temperatureMinLayout)
 
-        humidityLayout = QHBoxLayout()
+        ## HUMIDITY
+        humidityMaxLayout = QHBoxLayout()
+        humidityMaxLayout.addWidget(humidityMaxLabel)
+        humidityMaxLayout.addWidget(self.humidityMaxComboBox)
+
+        humidityMinLayout = QHBoxLayout()
+        humidityMinLayout.addWidget(humidityMinLabel)
+        humidityMinLayout.addWidget(self.humidityMinComboBox)
+
+        humidityLayout = QVBoxLayout()
         humidityLayout.addWidget(humidityLabel)
-        humidityLayout.addWidget(humidityQle)
+        humidityLayout.addLayout(humidityMaxLayout)
+        humidityLayout.addLayout(humidityMinLayout)
 
-        weatherBox.addLayout(temperatureLayout)
-        weatherBox.addLayout(humidityLayout)
+        ## PRECIPITATION
+        precipitationRadioButtonLayout = QHBoxLayout()
+        precipitationRadioButtonLayout.addWidget(self.precipitationNonRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationWeakRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationSlightlyStrongRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationStrongRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationViolentRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationVeryViolentRadioButton)
+        precipitationRadioButtonLayout.addWidget(self.precipitationImpetuousRadioButton)
+
+        precipitationLayout = QVBoxLayout()
+        precipitationLayout.addWidget(precipitationLabel)
+        precipitationLayout.addLayout(precipitationRadioButtonLayout)
+
+        ## SUN LIGHT
+
+
+        ## まとめ
+        weatherBox1.addLayout(temperatureLayout)
+        weatherBox1.addLayout(humidityLayout)
+        weatherBox.addLayout(weatherBox1)
+        weatherBox.addLayout(precipitationLayout)
 
         self.weatherGroupBox.setLayout(weatherBox)
         grid.addWidget(self.weatherGroupBox)
@@ -158,7 +231,7 @@ class InputWindow(QWidget):
         grid.addWidget(outPutButton)
 
         self.setLayout(grid)
-        self.resize(500, 500)
+        #self.resize(500, 500)
         self.setWindowTitle('AC CAN Transition')
         self.setWindowIcon(QIcon('rusi.png'))
         self.show()
