@@ -361,7 +361,7 @@ class InputWindow(QWidget):
         elif self.precipitationImpetuousRadioButton.isChecked():
             precipitationMax = 1000
             precipitationMin = 80
-            print("PRECIPITATION : 猛烈な雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            print("PRECIPITATION : 猛烈な雨 (" + str(precipitationMin) + "mm/h ～")
         else:
             print("無効なPRECIPITATION")
 
@@ -375,21 +375,35 @@ class InputWindow(QWidget):
         sunLightMin = int(self.sunLightMinComboBox.currentText())
         print("SUN LIGHT : " + str(sunLightMin) +"min ～ " + str(sunLightMax) + "min")
 
+        print("\nクエリ生成開始. \n")
 
         ##クエリ生成
-        getTripQuery = "SELECT TRIP_ID, DATETIME, AC_PWR_250W FROM LEAFSPY_RAW2 WHERE DATETIME >= '2017-10-30' ORDER BY DATETIME"
+        getTripQuery = "select TRIP_ID from TRIPS_WEATHER_View where DRIVER_ID = " + str(driverId) + " and CAR_ID = " + str(carId)\
+        + " and (SENSOR_ID = 12 or SENSOR_ID = 16) and TRIP_DIRECTION = '" + tripDirection + "'"\
+        + " and TRIP_TIME >=" + str(tripTimeMin * 60) + " and TRIP_TIME <= " + str(tripTimeMax * 60)\
+        + " and TRIP_TEMPERATURE >= " + str(temperatureMin) + " and TRIP_TEMPERATURE <= " + str(temperatureMax)\
+        + " and TRIP_HUMIDITY >= " + str(humidityMin) + " and TRIP_HUMIDITY <= " + str(humidityMax)\
+        + " and TRIP_PRECIPITATION >= " + str(precipitationMin) + " * TRIP_TIME / 3600 and TRIP_PRECIPITATION <= " + str(precipitationMax) + " * TRIP_TIME / 3600"\
+        + " and TRIP_WIND_SPEED >= " + str(windSpeedMin) + " and TRIP_WIND_SPEED <= " + str(windSpeedMax)\
+        + " and TRIP_SUN_LIGHT >= " + str(sunLightMin) + " and TRIP_SUN_LIGHT <= " + str(sunLightMax)
 
         ## DBにアクセスして実行
-        cur = dbConnection().cursor()
-        cur.execute(getTripQuery)
+        print("クエリ生成終了. DBにアクセス開始. \n")
+        getTripCur = dbConnection().cursor()
+        getTripCur.execute(getTripQuery)
         
-        rows = cur.fetchall()
-        
-        for row in rows:
-            print("%d %s %d" % (row[0], row[1], row[2]))
-            
+        tripRows = getTripCur.fetchall()
+        tripCounter = 0
+
+        for tripRow in tripRows:
+            print("TRIP ID : %d" % (tripRow[0]))
+            tripCounter += 1
+
+        print("\n以上%d件のトリップが該当しました. " % tripCounter)
+
         dbConnection().commit()
         dbConnection().close()
+        print("\n正常終了. \n")
 
 if __name__ == "__main__":
 
