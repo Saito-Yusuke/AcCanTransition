@@ -396,7 +396,7 @@ class InputWindow(QWidget):
         tripRows = cur.fetchall()
         tripCounter = 0
 
-        query1 = "select AC_PWR_250W * 250 / 1000 from LEAFSPY_RAW2 where TRIP_ID = "
+        query1 = "select AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2 where TRIP_ID = "
         query2 = " order by DATETIME"
         getLeafSpyQueryList = []
         leafSpyList = []
@@ -414,11 +414,9 @@ class InputWindow(QWidget):
             ### 結果を格納
             leafSpyList.append(cur.fetchall())
             ### グラフを描画
-            #plt.plot(leafSpyList[tripCounter - 1])
+            plt.plot(leafSpyList[tripCounter - 1])
 
         print("\n以上%d件のトリップが該当しました. \n描画したグラフを表示します. " % tripCounter)
-        print(leafSpyList[0])
-        plt.plot(leafSpyList[0])
         plt.show()
 
         dbConnection().commit()
