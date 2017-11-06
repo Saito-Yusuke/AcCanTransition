@@ -1,6 +1,7 @@
 ## libraries
 import sys
 import pyodbc
+import matplotlib.pyplot as plt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -389,17 +390,36 @@ class InputWindow(QWidget):
 
         ## DBにアクセスして実行
         print("クエリ生成終了. DBにアクセス開始. \n")
-        getTripCur = dbConnection().cursor()
-        getTripCur.execute(getTripQuery)
+        cur = dbConnection().cursor()
+        cur.execute(getTripQuery)
         
-        tripRows = getTripCur.fetchall()
+        tripRows = cur.fetchall()
         tripCounter = 0
 
+        query1 = "select AC_PWR_250W * 250 / 1000 from LEAFSPY_RAW2 where TRIP_ID = "
+        query2 = " order by DATETIME"
+        getLeafSpyQueryList = []
+        leafSpyList = []
+        
         for tripRow in tripRows:
             print("TRIP ID : %d" % (tripRow[0]))
             tripCounter += 1
 
-        print("\n以上%d件のトリップが該当しました. " % tripCounter)
+            # グラフを描く
+            ## トリップを1つ指定して該当するCANデータを取ってくる
+            ### クエリ生成
+            getLeafSpyQueryList.append(query1 + str(tripRow[0]) + query2)
+            ### クエリ実行
+            cur.execute(getLeafSpyQueryList[tripCounter - 1])
+            ### 結果を格納
+            leafSpyList.append(cur.fetchall())
+            ### グラフを描画
+            #plt.plot(leafSpyList[tripCounter - 1])
+
+        print("\n以上%d件のトリップが該当しました. \n描画したグラフを表示します. " % tripCounter)
+        print(leafSpyList[0])
+        plt.plot(leafSpyList[0])
+        plt.show()
 
         dbConnection().commit()
         dbConnection().close()
