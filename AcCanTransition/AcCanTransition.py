@@ -74,13 +74,12 @@ class InputWindow(QWidget):
 
 
         # LineEditオブジェクト
-        temperatureQle = QLineEdit()
-        humidityQle = QLineEdit()
-        precipitationQle = QLineEdit()
-        sunlightQle = QLineEdit()
-        windQle = QLineEdit()
-        windSpeedQle = QLineEdit()
-        windDirectionQle = QLineEdit()
+        self.temperatureMaxQle = QLineEdit(self)
+        self.temperatureMinQle = QLineEdit(self)
+        self.humidityMaxQle = QLineEdit(self)
+        self.humidityMinQle = QLineEdit(self)
+        self.humidityMaxQle.setText("100")
+        self.humidityMinQle.setText("0")
 
 
         # ComboBoxオブジェクト
@@ -194,11 +193,11 @@ class InputWindow(QWidget):
         ## TEMPERATURE
         temperatureMaxLayout = QHBoxLayout()
         temperatureMaxLayout.addWidget(temperatureMaxLabel)
-        temperatureMaxLayout.addWidget(self.temperatureMaxComboBox)
+        temperatureMaxLayout.addWidget(self.temperatureMaxQle)
 
         temperatureMinLayout = QHBoxLayout()
         temperatureMinLayout.addWidget(temperatureMinLabel)
-        temperatureMinLayout.addWidget(self.temperatureMinComboBox)
+        temperatureMinLayout.addWidget(self.temperatureMinQle)
 
         temperatureLayout = QVBoxLayout()
         temperatureLayout.addWidget(temperatureLabel)
@@ -208,11 +207,11 @@ class InputWindow(QWidget):
         ## HUMIDITY
         humidityMaxLayout = QHBoxLayout()
         humidityMaxLayout.addWidget(humidityMaxLabel)
-        humidityMaxLayout.addWidget(self.humidityMaxComboBox)
+        humidityMaxLayout.addWidget(self.humidityMaxQle)
 
         humidityMinLayout = QHBoxLayout()
         humidityMinLayout.addWidget(humidityMinLabel)
-        humidityMinLayout.addWidget(self.humidityMinComboBox)
+        humidityMinLayout.addWidget(self.humidityMinQle)
 
         humidityLayout = QVBoxLayout()
         humidityLayout.addWidget(humidityLabel)
@@ -328,13 +327,13 @@ class InputWindow(QWidget):
         print("TRIP TIME : " + str(tripTimeMin) +"min ～ " + str(tripTimeMax) + "min")
 
         ### TEMPERATURE
-        temperatureMax = int(self.temperatureMaxComboBox.currentText())
-        temperatureMin = int(self.temperatureMinComboBox.currentText())
+        temperatureMax = int(self.temperatureMaxQle.text())
+        temperatureMin = int(self.temperatureMinQle.text())
         print("TEMPERATURE : " + str(temperatureMin) +"℃ ～ " + str(temperatureMax) + "℃")
 
         ### HUMIDITY
-        humidityMax = int(self.humidityMaxComboBox.currentText())
-        humidityMin = int(self.humidityMinComboBox.currentText())
+        humidityMax = int(self.humidityMaxQle.text())
+        humidityMin = int(self.humidityMinQle.text())
         print("HUMIDITY : " + str(humidityMin) +"% ～ " + str(humidityMax) + "%")
 
         ### PRECIPITATION
