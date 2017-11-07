@@ -106,18 +106,6 @@ class InputWindow(QWidget):
         self.tripTimeMinComboBox = QComboBox(self)
         self.tripTimeMinComboBox.addItems(["140", "130", "120", "110", "100", "90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
 
-        ## TEMPERATURE
-        self.temperatureMaxComboBox = QComboBox(self)
-        self.temperatureMaxComboBox.addItems(["45", "40", "35", "30", "25", "20", "15", "10", "5", "0", "-5", "-10", "-15", "-20"])
-        self.temperatureMinComboBox = QComboBox(self)
-        self.temperatureMinComboBox.addItems(["40", "35", "30", "25", "20", "15", "10", "5", "0", "-5", "-10", "-15", "-20", "-25"])
-
-        ## HUMIDITY
-        self.humidityMaxComboBox = QComboBox(self)
-        self.humidityMaxComboBox.addItems(["100", "90", "80", "70", "60", "50", "40", "30", "20", "10"])
-        self.humidityMinComboBox = QComboBox(self)
-        self.humidityMinComboBox.addItems(["90", "80", "70", "60", "50", "40", "30", "20", "10", "0"])
-
         ##WIND SPEED
         self.windSpeedMaxComboBox = QComboBox(self)
         self.windSpeedMaxComboBox.addItems(["20", "18", "16", "14", "12", "10", "8", "6", "4", "2", "0"])
