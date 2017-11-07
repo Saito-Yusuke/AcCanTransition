@@ -2,6 +2,7 @@
 import sys
 import pyodbc
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -11,6 +12,8 @@ server = 'ECOLOGDB2016'
 database = 'ECOLOGDBver3'
 username = 'TOMMYLAB\saito'
 password = ''
+
+fp = FontProperties(fname=r'C:\Windows\Fonts\meiryo.ttc')
 
 ## 関数定義
 ### DB connectionを定義
@@ -338,33 +341,34 @@ class InputWindow(QWidget):
         if self.precipitationNonRadioButton.isChecked():
             precipitationMax = 0
             precipitationMin = 0
-            print("PRECIPITATION : 降水なし (" + str(precipitationMin) + "mm)")
+            precipitationString = u"PRECIPITATION : 降水なし (" + str(precipitationMin) + "mm)"
         elif self.precipitationWeakRadioButton.isChecked():
             precipitationMax = 10
             precipitationMin = 0
-            print("PRECIPITATION : 弱い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            precipitationString = u"PRECIPITATION : 弱い雨 (" + str(precipitationMin) + u"mm/h ～ " + str(precipitationMax) + "mm/h)"
         elif self.precipitationSlightlyStrongRadioButton.isChecked():
             precipitationMax = 20
             precipitationMin = 10
-            print("PRECIPITATION : やや強い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            precipitationString = u"PRECIPITATION : やや強い雨 (" + str(precipitationMin) + u"mm/h ～ " + str(precipitationMax) + "mm/h)"
         elif self.precipitationStrongRadioButton.isChecked():
             precipitationMax = 30
             precipitationMin = 20
-            print("PRECIPITATION : 強い雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            precipitationString = u"PRECIPITATION : 強い雨 (" + str(precipitationMin) + u"mm/h ～ " + str(precipitationMax) + "mm/h)"
         elif self.precipitationViolentRadioButton.isChecked():
             precipitationMax = 50
             precipitationMin = 30
-            print("PRECIPITATION : 激しい雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            precipitationString = u"PRECIPITATION : 激しい雨 (" + str(precipitationMin) + u"mm/h ～ " + str(precipitationMax) + "mm/h)"
         elif self.precipitationVeryViolentRadioButton.isChecked():
             precipitationMax = 80
             precipitationMin = 50
-            print("PRECIPITATION : 非常に激しい雨 (" + str(precipitationMin) + "mm/h ～ " + str(precipitationMax) + "mm/h)")
+            precipitationString = u"PRECIPITATION : 非常に激しい雨 (" + str(precipitationMin) + u"mm/h ～ " + str(precipitationMax) + "mm/h)"
         elif self.precipitationImpetuousRadioButton.isChecked():
             precipitationMax = 1000
             precipitationMin = 80
-            print("PRECIPITATION : 猛烈な雨 (" + str(precipitationMin) + "mm/h ～")
+            precipitationString = u"PRECIPITATION : 猛烈な雨 (" + str(precipitationMin) + u"mm/h ～)"
         else:
             print("無効なPRECIPITATION")
+        print(precipitationString)
 
         ### WIND SPEED
         windSpeedMax = int(self.windSpeedMaxComboBox.currentText())
@@ -375,6 +379,10 @@ class InputWindow(QWidget):
         sunLightMax = int(self.sunLightMaxComboBox.currentText())
         sunLightMin = int(self.sunLightMinComboBox.currentText())
         print("SUN LIGHT : " + str(sunLightMin) +"min ～ " + str(sunLightMax) + "min")
+
+        conditionString = "DRIVER ID : " + str(driverId) + "\nCAR ID : " + str(carId) + "\nTRIP DIRECTION : " + tripDirection + "\nTRIP TIME : " + str(tripTimeMin) + u"min ～ " + str(tripTimeMax) + "min"\
+        + "\nTEMPERATURE : " + str(temperatureMin) + u"℃ ～ " + str(temperatureMax) + u"℃" + "\nHUMIDITY : " + str(humidityMin) + u"% ～ " + str(humidityMax) + "%\n" + precipitationString\
+        + "\nWIND SPEED : " + str(windSpeedMin) +u"m/s ～ " + str(windSpeedMax) + "m/s" + "\nSUN LIGHT : " + str(sunLightMin) + u"min ～ " + str(sunLightMax) + "min"
 
         print("\nクエリ生成開始. \n")
 
@@ -396,8 +404,8 @@ class InputWindow(QWidget):
         tripRows = cur.fetchall()
         tripCounter = 0
 
-        query1 = "select AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2 where TRIP_ID = "
-        query2 = " order by DATETIME"
+        query1 = "select LEAFSPY_RAW2.AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2, TRIPS_WEATHER_View where LEAFSPY_RAW2.TRIP_ID = "
+        query2 = " and LEAFSPY_RAW2.TRIP_ID = TRIPS_WEATHER_View.TRIP_ID and LEAFSPY_RAW2.DATETIME >= TRIPS_WEATHER_View.START_TIME and LEAFSPY_RAW2.DATETIME <= TRIPS_WEATHER_View.END_TIME order by LEAFSPY_RAW2.DATETIME"
         getLeafSpyQueryList = []
         leafSpyList = []
         
@@ -414,9 +422,14 @@ class InputWindow(QWidget):
             ### 結果を格納
             leafSpyList.append(cur.fetchall())
             ### グラフを描画
-            plt.plot(leafSpyList[tripCounter - 1])
+            plt.plot(leafSpyList[tripCounter - 1], label = "TRIP ID : " + str(tripRow[0]))
 
         print("\n以上%d件のトリップが該当しました. \n描画したグラフを表示します. " % tripCounter)
+        plt.legend()
+        plt.title("AC CAN Transiton")
+        plt.ylabel("AC POWER from LEAF SPY [kW]")
+        plt.ylim(0, 5.0)
+        plt.figtext(0.58, 0.71, conditionString, fontproperties=fp)
         plt.show()
 
         dbConnection().commit()
