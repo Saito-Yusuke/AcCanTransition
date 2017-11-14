@@ -391,15 +391,13 @@ class InputWindow(QWidget):
         tripRows = cur.fetchall()
         tripCounter = 0
 
-        query1 = "select LEAFSPY_RAW2.AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2, TRIPS_WEATHER_View where LEAFSPY_RAW2.TRIP_ID = "
+        query1 = "select DATEDIFF(second, START_TIME, DATETIME), LEAFSPY_RAW2.AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2, TRIPS_WEATHER_View where LEAFSPY_RAW2.TRIP_ID = "
         query2 = " and LEAFSPY_RAW2.TRIP_ID = TRIPS_WEATHER_View.TRIP_ID and LEAFSPY_RAW2.DATETIME >= TRIPS_WEATHER_View.START_TIME and LEAFSPY_RAW2.DATETIME <= TRIPS_WEATHER_View.END_TIME order by LEAFSPY_RAW2.DATETIME"
         getLeafSpyQueryList = []
-        leafSpyList = []
-        
+
         for tripRow in tripRows:
             print("TRIP ID : %d" % (tripRow[0]))
             tripCounter += 1
-
             # グラフを描く
             ## トリップを1つ指定して該当するCANデータを取ってくる
             ### クエリ生成
@@ -407,13 +405,20 @@ class InputWindow(QWidget):
             ### クエリ実行
             cur.execute(getLeafSpyQueryList[tripCounter - 1])
             ### 結果を格納
-            leafSpyList.append(cur.fetchall())
-            ### グラフを描画
-            plt.plot(leafSpyList[tripCounter - 1], label = "TRIP ID : " + str(tripRow[0]))
+            leafSpyResult = cur.fetchall()
+            ### グラフを描画（leafSpyResultが空ではないときだけ）
+            if len(leafSpyResult) > 0:
+                x = []
+                y = []  
+                for i in range(len(leafSpyResult)):
+                    x.append(leafSpyResult[i][0])
+                    y.append(leafSpyResult[i][1])
+                plt.plot(x, y, label = "TRIP ID : " + str(tripRow[0]))
 
         print("\n以上%d件のトリップが該当しました. \n描画したグラフを表示します. " % tripCounter)
         plt.legend()
-        plt.title("AC CAN Transiton")
+        plt.title("AC CAN Transition")
+        plt.xlabel("ELAPSED TIME [s]")
         plt.ylabel("AC POWER from LEAF SPY [kW]")
         plt.ylim(0, 5.0)
         plt.figtext(0.58, 0.71, conditionString, fontproperties=fp)
