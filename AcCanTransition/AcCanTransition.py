@@ -276,7 +276,7 @@ class InputWindow(QWidget):
         sender = self.sender()
 
         ## 入力されている値を取得・コンソールに出力
-        print("CONDITION")
+        print("\nCONDITION")
 
         ### DRIVER ID
         if self.driverIdComboBox.currentIndex() == 0:
@@ -365,13 +365,11 @@ class InputWindow(QWidget):
         ### SUN LIGHT
         sunLightMax = int(self.sunLightMaxComboBox.currentText())
         sunLightMin = int(self.sunLightMinComboBox.currentText())
-        print("SUN LIGHT : " + str(sunLightMin) +"min ～ " + str(sunLightMax) + "min")
+        print("SUN LIGHT : " + str(sunLightMin) +"min ～ " + str(sunLightMax) + "min\n")
 
         conditionString = "DRIVER ID : " + str(driverId) + "\nCAR ID : " + str(carId) + "\nTRIP DIRECTION : " + tripDirection + "\nTRIP TIME : " + str(tripTimeMin) + u"min ～ " + str(tripTimeMax) + "min"\
         + "\nTEMPERATURE : " + str(temperatureMin) + u"℃ ～ " + str(temperatureMax) + u"℃" + "\nHUMIDITY : " + str(humidityMin) + u"% ～ " + str(humidityMax) + "%\n" + precipitationString\
         + "\nWIND SPEED : " + str(windSpeedMin) +u"m/s ～ " + str(windSpeedMax) + "m/s" + "\nSUN LIGHT : " + str(sunLightMin) + u"min ～ " + str(sunLightMax) + "min"
-
-        print("\nクエリ生成開始. \n")
 
         ##クエリ生成
         getTripQuery = "select TRIP_ID from TRIPS_WEATHER_View where DRIVER_ID = " + str(driverId) + " and CAR_ID = " + str(carId)\
@@ -384,14 +382,13 @@ class InputWindow(QWidget):
         + " and TRIP_SUN_LIGHT >= " + str(sunLightMin) + " and TRIP_SUN_LIGHT <= " + str(sunLightMax)
 
         ## DBにアクセスして実行
-        print("クエリ生成終了. DBにアクセス開始. \n")
         cur = dbConnection().cursor()
         cur.execute(getTripQuery)
         
         tripRows = cur.fetchall()
         tripCounter = 0
 
-        query1 = "select DATEDIFF(second, START_TIME, DATETIME), LEAFSPY_RAW2.AC_PWR_250W * 250.0 / 1000.0 from LEAFSPY_RAW2, TRIPS_WEATHER_View where LEAFSPY_RAW2.TRIP_ID = "
+        query1 = "select DATEDIFF(second, START_TIME, DATETIME), AMBIENT from LEAFSPY_RAW2, TRIPS_WEATHER_View where LEAFSPY_RAW2.TRIP_ID = "
         query2 = " and LEAFSPY_RAW2.TRIP_ID = TRIPS_WEATHER_View.TRIP_ID and LEAFSPY_RAW2.DATETIME >= TRIPS_WEATHER_View.START_TIME and LEAFSPY_RAW2.DATETIME <= TRIPS_WEATHER_View.END_TIME order by LEAFSPY_RAW2.DATETIME"
         getLeafSpyQueryList = []
 
@@ -399,7 +396,7 @@ class InputWindow(QWidget):
             print("TRIP ID : %d" % (tripRow[0]))
             tripCounter += 1
             # グラフを描く
-            ## トリップを1つ指定して該当するCANデータを取ってくる
+            ## トリップを1つ指定して該当するデータを取ってくる
             ### クエリ生成
             getLeafSpyQueryList.append(query1 + str(tripRow[0]) + query2)
             ### クエリ実行
@@ -409,10 +406,25 @@ class InputWindow(QWidget):
             ### グラフを描画（leafSpyResultが空ではないときだけ）
             if len(leafSpyResult) > 0:
                 x = []
-                y = []  
+                y = []
+                startTemperature = leafSpyResult[0][1]
+                
                 for i in range(len(leafSpyResult)):
-                    x.append(leafSpyResult[i][0])
-                    y.append(leafSpyResult[i][1])
+                    if leafSpyResult[i][1] < 15:
+                        tm = -33.84 * startTemperature + 900.0
+                        x.append(leafSpyResult[i][0])
+                        if leafSpyResult[i][0] <= tm:
+                            y.append(-0.0021 * leafSpyResult[i][0] + 4 * (1 - (startTemperature / 25)))
+                        else:
+                            y.append(-0.092 * leafSpyResult[i][1] + 1.91)
+                    elif leafSpyResult[i][1] > 20:
+                        tm = -10.13 * startTemperature + 9.22
+                        x.append(leafSpyResult[i][0])
+                        if leafSpyResult[i][0] <= tm:
+                            y.append(-0.0045 * leafSpyResult[i][0] + (3.5/3) * ((startTemperature / 10) - 1))
+                        else:
+                            y.append(0.035 * leafSpyResult[i][1] - 0.490)
+
                 plt.plot(x, y, label = "TRIP ID : " + str(tripRow[0]))
 
         print("\n以上%d件のトリップが該当しました. \n描画したグラフを表示します. " % tripCounter)
